@@ -1,20 +1,20 @@
 package workerpool
 
-type Worker struct {
-	taskChan chan *Task
+type worker struct {
+	taskChan chan *task
 	quitChan chan bool
 	Id       int
 }
 
-func NewWorker(ch chan *Task, Id int) *Worker {
-	return &Worker{
+func newWorker(ch chan *task, Id int) *worker {
+	return &worker{
 		Id:       Id,
 		taskChan: ch,
 		quitChan: make(chan bool),
 	}
 }
 
-func (w *Worker) StartBackground() {
+func (w *worker) startBackground() {
 	for {
 		select {
 		case task := <-w.taskChan:
@@ -25,7 +25,7 @@ func (w *Worker) StartBackground() {
 	}
 }
 
-func (w *Worker) Stop() {
+func (w *worker) stop() {
 	go func() {
 		w.quitChan <- true
 	}()

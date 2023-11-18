@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-type Task struct {
+type task struct {
 	Err chan error
 	Res chan interface{}
 
@@ -20,12 +20,12 @@ var (
 	errTaskTimeout = errors.New("error timeout task from worker")
 )
 
-func NewTask(f func() (interface{}, error), timeout *time.Duration) *Task {
+func NewTask(f func() (interface{}, error), timeout *time.Duration) *task {
 	if timeout == nil {
 		timeout = &defaultTimeout
 	}
 
-	return &Task{
+	return &task{
 		f:       f,
 		timeout: *timeout,
 		Res:     make(chan interface{}, 2),
@@ -38,28 +38,28 @@ type response struct {
 	Err error
 }
 
-func process(workerId int, task *Task) {
-	ctx, cancel := context.WithTimeout(context.Background(), task.timeout)
+func process(workerId int, t *task) {
+	ctx, cancel := context.WithTimeout(context.Background(), t.timeout)
 	defer cancel()
 
 	responseCh := make(chan response)
 
 	go func() {
-		res, err := task.f()
+		res, err := t.f()
 		responseCh <- response{res, err}
 	}()
 
 	select {
 	case res := <-responseCh:
 		if res.Err != nil {
-			task.Err <- res.Err
+			t.Err <- res.Err
 		} else {
-			task.Res <- res.Res
+			t.Res <- res.Res
 		}
 	case <-ctx.Done():
-		task.Err <- errTaskTimeout
+		t.Err <- errTaskTimeout
 	}
 
-	close(task.Err)
-	close(task.Res)
+	close(t.Err)
+	close(t.Res)
 }
