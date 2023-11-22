@@ -1,12 +1,12 @@
 package workerpool
 
 type worker struct {
-	taskChan chan *task
+	taskChan chan *Task
 	quitChan chan bool
 	Id       int
 }
 
-func newWorker(ch chan *task, Id int) *worker {
+func newWorker(ch chan *Task, Id int) *worker {
 	return &worker{
 		Id:       Id,
 		taskChan: ch,

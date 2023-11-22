@@ -1,9 +1,9 @@
 package workerpool
 
 type pool struct {
-	collector chan *task
+	collector chan *Task
 
-	Tasks   []*task
+	Tasks   []*Task
 	Workers []*worker
 
 	workerCount int
@@ -13,11 +13,11 @@ func NewPool(workerCount, collectorCount int) *pool {
 	return &pool{
 		workerCount: workerCount,
 		Workers:     make([]*worker, workerCount),
-		collector:   make(chan *task, collectorCount),
+		collector:   make(chan *Task, collectorCount),
 	}
 }
 
-func (p *pool) AddTask(t *task) {
+func (p *pool) AddTask(t *Task) {
 	p.collector <- t
 }
 
