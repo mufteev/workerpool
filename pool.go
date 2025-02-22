@@ -21,7 +21,7 @@ func (p *Pool[T]) AddTask(t *Task[T]) {
 	p.collector <- t
 }
 
-func (p *Pool[T]) RunBackgground() {
+func (p *Pool[T]) RunBackground() {
 	for i := 0; i < p.workerCount; i++ {
 		w := newWorker(p.collector, i)
 		p.Workers[i] = w
