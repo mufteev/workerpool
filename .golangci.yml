@@ -1,0 +1,12 @@
+linters:
+  enable:
+    - typecheck
+    - goimports
+    - misspell
+    - revive
+    - govet
+    - ineffassign
+    - gosimple
+    - unused
+    - gocritic
+    - gosec
