@@ -6,11 +6,11 @@ import (
 	"time"
 )
 
-type Task struct {
+type Task[T any] struct {
 	Err chan error
-	Res chan interface{}
+	Res chan T
 
-	f func() (interface{}, error)
+	f func() (T, error)
 
 	timeout time.Duration
 }
@@ -20,33 +20,33 @@ var (
 	errTaskTimeout = errors.New("error timeout task from worker")
 )
 
-func NewTask(f func() (interface{}, error), timeout *time.Duration) *Task {
+func NewTask[T any](f func() (T, error), timeout *time.Duration) *Task[T] {
 	if timeout == nil {
 		timeout = &defaultTimeout
 	}
 
-	return &Task{
+	return &Task[T]{
 		f:       f,
 		timeout: *timeout,
-		Res:     make(chan interface{}, 2),
+		Res:     make(chan T, 2),
 		Err:     make(chan error, 2),
 	}
 }
 
-type response struct {
-	Res interface{}
+type response[T any] struct {
+	Res T
 	Err error
 }
 
-func process(workerId int, t *Task) {
+func process[T any](workerId int, t *Task[T]) {
 	ctx, cancel := context.WithTimeout(context.Background(), t.timeout)
 	defer cancel()
 
-	responseCh := make(chan response)
+	responseCh := make(chan response[T])
 
 	go func() {
 		res, err := t.f()
-		responseCh <- response{res, err}
+		responseCh <- response[T]{res, err}
 	}()
 
 	select {
