@@ -22,8 +22,8 @@ func (p *Pool[T]) AddTask(t *Task[T]) {
 }
 
 func (p *Pool[T]) RunBackground() {
-	for i := 0; i < p.workerCount; i++ {
-		w := newWorker(p.collector, i)
+	for i := range p.workerCount {
+		w := newWorker(p.collector)
 		p.Workers[i] = w
 
 		go w.startBackground()
@@ -31,7 +31,7 @@ func (p *Pool[T]) RunBackground() {
 }
 
 func (p *Pool[T]) Stop() {
-	for i := 0; i < p.workerCount; i++ {
+	for i := range p.workerCount {
 		p.Workers[i].stop()
 	}
 }
