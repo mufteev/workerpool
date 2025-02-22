@@ -1,6 +1,6 @@
 package workerpool
 
-type pool struct {
+type Pool struct {
 	collector chan *Task
 
 	Tasks   []*Task
@@ -9,19 +9,19 @@ type pool struct {
 	workerCount int
 }
 
-func NewPool(workerCount, collectorCount int) *pool {
-	return &pool{
+func NewPool(workerCount, collectorCount int) *Pool {
+	return &Pool{
 		workerCount: workerCount,
 		Workers:     make([]*worker, workerCount),
 		collector:   make(chan *Task, collectorCount),
 	}
 }
 
-func (p *pool) AddTask(t *Task) {
+func (p *Pool) AddTask(t *Task) {
 	p.collector <- t
 }
 
-func (p *pool) RunBackgground() {
+func (p *Pool) RunBackgground() {
 	for i := 0; i < p.workerCount; i++ {
 		w := newWorker(p.collector, i)
 		p.Workers[i] = w
@@ -30,7 +30,7 @@ func (p *pool) RunBackgground() {
 	}
 }
 
-func (p *pool) Stop() {
+func (p *Pool) Stop() {
 	for i := 0; i < p.workerCount; i++ {
 		p.Workers[i].stop()
 	}
