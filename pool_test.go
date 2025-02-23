@@ -47,7 +47,22 @@ func TestPoolSimple(t *testing.T) {
 		if sub > timeout {
 			t.Fatalf("long: %d - %d", sub, timeout)
 		}
-
-		t.Logf("Ok: %d - %d", sub, timeout)
 	})
+}
+
+func TestPoolAddTaskNil(t *testing.T) {
+	wp, err := workerpool.NewPool(1, 1)
+	if err != nil {
+		t.Fatalf("workerpool: %s", err)
+	}
+
+	wp.RunBackground()
+
+	if err := wp.AddTask(nil); err != workerpool.ErrTaskNil {
+		t.Fatalf("error: %s", err)
+	}
+
+	wp.Stop()
+}
+
 }
