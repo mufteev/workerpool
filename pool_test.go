@@ -34,7 +34,7 @@ func TestPoolSimple(t *testing.T) {
 
 		for range 2 {
 			wg.Add(1)
-			wp.AddTask(func() {
+			_ = wp.AddTask(func() {
 				defer wg.Done()
 				time.Sleep(timeout)
 			})
@@ -91,7 +91,7 @@ func BenchmarkPool_2Workers_2Collector(b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
 		wg.Add(1)
-		wp.AddTask(func() {
+		_ = wp.AddTask(func() {
 			defer wg.Done()
 
 			var sb strings.Builder
@@ -117,7 +117,7 @@ func BenchmarkPool_10Workers_2Collector(b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
 		wg.Add(1)
-		wp.AddTask(func() {
+		_ = wp.AddTask(func() {
 			defer wg.Done()
 
 			var sb strings.Builder
@@ -142,7 +142,7 @@ func BenchmarkPool_2Workers_10Collector(b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
 		wg.Add(1)
-		wp.AddTask(func() {
+		_ = wp.AddTask(func() {
 			defer wg.Done()
 
 			var sb strings.Builder
