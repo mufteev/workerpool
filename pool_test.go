@@ -19,23 +19,23 @@ func TestPoolSimple(t *testing.T) {
 			countCollector = 2
 		)
 
-		wp := workerpool.NewPool(countWorkers, countCollector)
+		wp, err := workerpool.NewPool(countWorkers, countCollector)
+		if err != nil {
+			t.Fatalf("workerpool: %s", err)
+		}
 		wp.RunBackground()
 
-		timeout := 1 * time.Second
+		timeout := 5 * time.Second
 		now := time.Now()
 
 		wg := sync.WaitGroup{}
 
-		for i := range 2 {
-			_ = i
+		for range 2 {
 			wg.Add(1)
-			task := workerpool.NewTask(func() {
+			wp.AddTask(func() {
 				defer wg.Done()
 				time.Sleep(timeout)
 			})
-
-			wp.AddTask(task)
 		}
 
 		wg.Wait()
