@@ -24,7 +24,5 @@ func (w *worker) startBackground() {
 }
 
 func (w *worker) stop() {
-	go func() {
-		w.quitChan <- true
-	}()
+	w.quitChan <- true
 }
