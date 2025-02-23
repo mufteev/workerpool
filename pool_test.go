@@ -1,6 +1,7 @@
 package workerpool_test
 
 import (
+	"strings"
 	"sync"
 	"testing"
 
@@ -10,7 +11,8 @@ import (
 	"github.com/mufteev/workerpool"
 )
 
-// GOEXPERIMENT=synctest GOTRACEBACK=all go test
+// GOEXPERIMENT=synctest GOTRACEBACK=all go test -v
+// go test -benchmem -run ^$ -bench ^BenchmarkPool
 
 func TestPoolSimple(t *testing.T) {
 	synctest.Run(func() {
@@ -77,4 +79,81 @@ func TestPoolStop(t *testing.T) {
 	if err := wp.AddTask(func() {}); err != workerpool.ErrPoolStopped {
 		t.Fatalf("error: %s", err)
 	}
+}
+
+func BenchmarkPool_2Workers_2Collector(b *testing.B) {
+	wp, _ := workerpool.NewPool(2, 2)
+	wp.RunBackground()
+
+	wg := sync.WaitGroup{}
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		wg.Add(1)
+		wp.AddTask(func() {
+			defer wg.Done()
+
+			var sb strings.Builder
+			for j := 0; j < b.N; j++ {
+				sb.WriteString("Hello, World!")
+			}
+
+			_ = sb.String()
+		})
+	}
+
+	wg.Wait()
+	wp.Stop()
+}
+
+func BenchmarkPool_10Workers_2Collector(b *testing.B) {
+	wp, _ := workerpool.NewPool(10, 2)
+	wp.RunBackground()
+
+	wg := sync.WaitGroup{}
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		wg.Add(1)
+		wp.AddTask(func() {
+			defer wg.Done()
+
+			var sb strings.Builder
+			for j := 0; j < b.N; j++ {
+				sb.WriteString("Hello, World!")
+			}
+
+			_ = sb.String()
+		})
+	}
+
+	wg.Wait()
+	wp.Stop()
+}
+func BenchmarkPool_2Workers_10Collector(b *testing.B) {
+	wp, _ := workerpool.NewPool(2, 10)
+	wp.RunBackground()
+
+	wg := sync.WaitGroup{}
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		wg.Add(1)
+		wp.AddTask(func() {
+			defer wg.Done()
+
+			var sb strings.Builder
+			for j := 0; j < b.N; j++ {
+				sb.WriteString("Hello, World!")
+			}
+
+			_ = sb.String()
+		})
+	}
+
+	wg.Wait()
+	wp.Stop()
 }
