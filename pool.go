@@ -1,7 +1,7 @@
 package workerpool
 
 type Pool struct {
-	collector chan *Task
+	collector chan Task
 
 	Tasks   []*Task
 	Workers []*worker
@@ -13,12 +13,22 @@ func NewPool(workerCount, collectorCount int) *Pool {
 	return &Pool{
 		workerCount: workerCount,
 		Workers:     make([]*worker, workerCount),
-		collector:   make(chan *Task, collectorCount),
+		collector:   make(chan Task, collectorCount),
 	}
 }
 
-func (p *Pool) AddTask(t *Task) {
+func (p *Pool) AddTask(t Task) error {
+	if t == nil {
+		return ErrTaskNil
+	}
+
+	if p.isStopped.Load() {
+		return ErrPoolStopped
+	}
+
 	p.collector <- t
+
+	return nil
 }
 
 func (p *Pool) RunBackground() {
