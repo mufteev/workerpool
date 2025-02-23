@@ -65,4 +65,16 @@ func TestPoolAddTaskNil(t *testing.T) {
 	wp.Stop()
 }
 
+func TestPoolStop(t *testing.T) {
+	wp, err := workerpool.NewPool(1, 1)
+	if err != nil {
+		t.Fatalf("workerpool: %s", err)
+	}
+
+	wp.RunBackground()
+	wp.Stop()
+
+	if err := wp.AddTask(func() {}); err != workerpool.ErrPoolStopped {
+		t.Fatalf("error: %s", err)
+	}
 }
